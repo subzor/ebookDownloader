@@ -3,19 +3,13 @@ import os
 import time
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 
-from threading import Thread, excepthook
+from threading import Thread
 import requests
 from bs4 import BeautifulSoup
 
@@ -87,30 +81,25 @@ class Ebook:
     
         time.sleep(3)
 
-        # abc = self.driver.find_element_by_xpath('//label[contains(text(),"Name and surname")]') #.send_keys(self.account['name'])
         self.driver.find_element_by_name("name").send_keys(self.account['name'])
-        time.sleep(3)
-
         self.driver.find_element_by_id("email").send_keys(self.account['email'])
-        # self.driver.find_element_by_xpath('//label[contains(text(),"Business email")]').send_keys(self.account['email'])
-
-        # self.driver.find_element_by_xpath('//label[contains(text(),"Company")]').send_keys(self.account['company'])
         self.driver.find_element_by_name("company").send_keys(self.account['company'])
         self.driver.find_element_by_name("url").send_keys(self.account['website'])
-
         country_select = Select(self.driver.find_element_by_id("countryOptions"))
         country_select.select_by_visible_text(self.account['country'])
-        # self.driver.find_element_by_xpath('//label[contains(text(),"Name and surname")]').send_keys(self.account['country'])
-        # self.driver.find_element_by_name("phoneDiallingCode").send_keys(self.account['country_code'])
         self.driver.find_element_by_name("phoneNumber").send_keys(self.account['phone'])
+        chat_frame = self.driver.find_element_by_class_name("bhr-chat__messenger")
+        self.driver.switch_to.frame(chat_frame)
+        self.driver.find_element_by_class_name("bhr-chat-messenger__minimalise").click()
+        self.driver.switch_to.default_content()
         self.driver.find_element_by_xpath('//*[@class="fa fa-angle-right fa-lg"]').click()
 
         time.sleep(3)
-        lol = self.driver.find_element_by_xpath('//a[contains(text(),"HERE")]').get_attribute("href")
+        link_to_pdf = self.driver.find_element_by_xpath('//a[contains(text(),"HERE")]').get_attribute("href")
 
-        time.sleep(3)
+        time.sleep(1)
 
-        r = requests.get(lol, allow_redirects=True)
+        r = requests.get(link_to_pdf, allow_redirects=True)
 
         open(self.account["ebook_name"] + ".pdf", 'wb').write(r.content)
 
@@ -145,7 +134,7 @@ if __name__ == "__main__":
     
 
     details = {
-        "ebook_name" : "Complete Marketing Automation Product Profile",
+        "ebook_name" : "Kamasutra of eMail Marketing Deliverability",
         "name" : "Daniel Test",
         "email" : "danieltest@cezar-trans.com",
         "company" : "Recruitment task",
