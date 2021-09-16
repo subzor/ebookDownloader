@@ -20,8 +20,12 @@ class Ebook:
 
 
         self.account = account
+        self.ebooks_list = []
+        self.list_of_links = []
+        self.correct_url = ''
+
         self.salesmanago_url = "https://www.salesmanago.com/"
-        self.direct_path = os.path.dirname(__file__)
+        self.direct_path = os.path.dirname(os.path.dirname(__file__))
         self.executable_path = os.path.join(self.direct_path, "chrome", "chromedriver.exe")
         self.options = Options()
         #Hide Browser
@@ -35,8 +39,11 @@ class Ebook:
 
 
     def get_url(self):
-        self.driver.get(self.salesmanago_url)
-        
+
+        try:
+            self.driver.get(self.salesmanago_url)
+        except Exception as error:
+            print(error)
 
         try:
             self.wait.until(EC.presence_of_all_elements_located((By.ID, "nav-toggler")))
@@ -44,7 +51,7 @@ class Ebook:
             print("First wait ",error)
         
         self.driver.find_element_by_id("nav-toggler").click()
-
+        time.sleep(1)
         self.resources = self.driver.find_elements_by_xpath('//a[contains(text(),"resources")]')
         time.sleep(1)
         self.resources[0].click()
@@ -56,14 +63,13 @@ class Ebook:
         try:
             self.wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, "article-content")))
         except Exception as error:
-            print("First wait ",error)
+            print("Second wait ",error)
 
         self.ebooks_list = self.driver.find_elements_by_xpath('//*[@class="ebook__img--container"]//a')
 
-        self.list_of_links =[]
-
-        for i in self.ebooks_list:
-            self.list_of_links.append(i.get_attribute('href')) 
+        if self.ebooks_list:
+            for ebook in self.ebooks_list:
+                self.list_of_links.append(ebook.get_attribute('href')) 
 
 
         thread_list = []
@@ -76,8 +82,10 @@ class Ebook:
             thread.join()
 
 
-
-        self.driver.get(self.correct_url)
+        try:
+            self.driver.get(self.correct_url)
+        except Exception as error:
+            print(error)
     
         time.sleep(3)
 
@@ -101,7 +109,7 @@ class Ebook:
 
         r = requests.get(link_to_pdf, allow_redirects=True)
 
-        open(self.account["ebook_name"] + ".pdf", 'wb').write(r.content)
+        open(os.path.join(self.direct_path, "download", self.account["ebook_name"] + ".pdf"), 'wb').write(r.content)
 
 
     def get_ebook_name(self, url):
@@ -143,6 +151,7 @@ if __name__ == "__main__":
         "country_code" : "+48",
         "phone" : "555666777"
     }
+
 
     test = Ebook(account=details)
     test.get_url()
