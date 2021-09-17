@@ -19,7 +19,4 @@ def get_ebook_name(url, ebook_name):
 
     if ebook_name in name:
         return url
-
 if __name__ == '__main__':
-
-    get_ebook_name()
