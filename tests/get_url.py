@@ -15,7 +15,6 @@ def get_ebook_name(url, ebook_name):
     except Exception as error:
         print(error)
     
-    print(soup)
     name = soup.title.string
 
     if ebook_name in name:
