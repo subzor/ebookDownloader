@@ -355,7 +355,7 @@ def test_shoud_pass_when_countryIsInvalid(get_driver, get_ebook_url, ebook_name,
     except Exception as e:
         assert True
 
-@pytest.mark.check_phone_number
+@pytest.mark.check_phone_number_empty
 @pytest.mark.parametrize("ebook_name, name, email, company, website, country, phone", [('Online Consumer Trends 2020', 'Daniel' , 'daniel.wincencik.benhauer+testrekrutacja@salesmanago.com', 'TestCompany', 'test.pl', 'Poland', '55666777')])
 def test_shoud_pass_when_phoneIsEmpty(get_driver, get_ebook_url, ebook_name, name, email, company, website, country, phone):
 
