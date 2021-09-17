@@ -125,11 +125,14 @@ class Ebook:
             soup = BeautifulSoup(page.content, 'lxml',from_encoding=page.encoding)
         except Exception as error:
             print(error)
-        try:
-            name = soup.find("h1",attrs={"class": "ebook__title text-center"}).getText()
-        except Exception as error:
-            print(error)
-            name = soup.find("h1",attrs={"class": "register-form__headline register-form__headline--pro"}).getText()
+        
+        name = soup.title.string
+        
+        # try:
+        #     name = soup.find("h1",attrs={"class": "ebook__title text-center"}).getText()
+        # except Exception as error:
+        #     print(error)
+        #     name = soup.find("h1",attrs={"class": "register-form__headline register-form__headline--pro"}).getText()
 
         if self.account['ebook_name'] in name:
             self.correct_url = url

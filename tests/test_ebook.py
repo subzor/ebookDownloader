@@ -2,7 +2,7 @@
 import os
 import sys
 sys.path.insert(1, os.path.join(os.path.dirname(os.path.dirname(__file__)), "backend"))
-import ebook
+from ebook import Ebook
 
 details = {
     "ebook_name" : "Kamasutra of eMail Marketing Deliverability",
@@ -15,9 +15,9 @@ details = {
     "phone" : "555666777"
 }
 
-def test_should_throwexception_when_ebookNotExist():
+def test_should_pass_when_ebookExist():
     
-    test = ebook.Ebook(account=details)
+    test = Ebook(account=details)
     test.get_url()
 
     is_file = os.path.isfile(os.path.join(os.path.dirname(os.path.dirname(__file__)),"download" ,details["ebook_name"] + ".pdf"))
