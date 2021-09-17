@@ -6,13 +6,13 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-
+from queue import Queue
 from selenium.webdriver.chrome.options import Options
 
 from threading import Thread
 import requests
 from bs4 import BeautifulSoup
-
+from get_url import get_ebook_name
 
 class Ebook:
 
@@ -72,18 +72,40 @@ class Ebook:
                 self.list_of_links.append(ebook.get_attribute('href')) 
 
 
+
+        que = Queue()
+
         thread_list = []
         for url in self.list_of_links:
-            worker = Thread(target=self.get_ebook_name,args=(url,))
+
+            worker = Thread(target=get_ebook_name, args=(que, url, self.account['ebook_name']))
+
             thread_list.append(worker)
         for thread in thread_list:
             thread.start()
         for thread in thread_list:
             thread.join()
 
+        correct_url = que.get()
+
+
+
+
+  
+
+
+        # thread_list = []
+        # for url in self.list_of_links:
+        #     worker = Thread(target=self.get_ebook_name,args=(url,))
+        #     thread_list.append(worker)
+        # for thread in thread_list:
+        #     thread.start()
+        # for thread in thread_list:
+        #     thread.join()
+
 
         try:
-            self.driver.get(self.correct_url)
+            self.driver.get(correct_url)
         except Exception as error:
             print(error)
     
@@ -111,31 +133,6 @@ class Ebook:
 
         open(os.path.join(self.direct_path, "download", self.account["ebook_name"] + ".pdf"), 'wb').write(r.content)
 
-
-    def get_ebook_name(self, url):
-
-        headers = {
-        "User-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36 Edg/89.0.774.77",
-        "action": "sign-in"
-        }
-        try:
-            requests_session = requests.Session()
-            requests_session.headers = headers
-            page = requests_session.get(url, headers=headers)
-            soup = BeautifulSoup(page.content, 'lxml',from_encoding=page.encoding)
-        except Exception as error:
-            print(error)
-        
-        name = soup.title.string
-        
-        # try:
-        #     name = soup.find("h1",attrs={"class": "ebook__title text-center"}).getText()
-        # except Exception as error:
-        #     print(error)
-        #     name = soup.find("h1",attrs={"class": "register-form__headline register-form__headline--pro"}).getText()
-
-        if self.account['ebook_name'] in name:
-            self.correct_url = url
 
 
 
