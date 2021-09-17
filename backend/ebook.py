@@ -88,22 +88,6 @@ class Ebook:
 
         correct_url = que.get()
 
-
-
-
-  
-
-
-        # thread_list = []
-        # for url in self.list_of_links:
-        #     worker = Thread(target=self.get_ebook_name,args=(url,))
-        #     thread_list.append(worker)
-        # for thread in thread_list:
-        #     thread.start()
-        # for thread in thread_list:
-        #     thread.join()
-
-
         try:
             self.driver.get(correct_url)
         except Exception as error:
