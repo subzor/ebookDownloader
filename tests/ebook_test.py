@@ -107,14 +107,16 @@ def test_shoud_pass_when_move_toSpecificEbookPage(get_driver, ebook_name):
     thread_list = []
     for url in list_of_links:
 
-        worker = Thread(target=lambda q, arg1: q.put(get_ebook_name(arg1)), args=(que, url, ebook_name))
+        worker = Thread(target=lambda q, arg1: q.put(get_ebook_name(arg1[0], arg1[1])), args=(que, url, ebook_name))
         thread_list.append(worker)
     for thread in thread_list:
         thread.start()
     for thread in thread_list:
         thread.join()
 
-    result = que.get()
+    while not que.empty():
+        result = que.get()
+
     print(result)
 
 
