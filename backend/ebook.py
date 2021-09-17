@@ -49,7 +49,7 @@ class Ebook:
             self.wait.until(EC.presence_of_all_elements_located((By.ID, "nav-toggler")))
         except Exception as error:
             print("First wait ",error)
-        
+        abc = self.driver.find_element_by_id("nav-toggler")
         self.driver.find_element_by_id("nav-toggler").click()
         time.sleep(1)
         self.resources = self.driver.find_elements_by_xpath('//a[contains(text(),"resources")]')
@@ -155,7 +155,7 @@ if __name__ == "__main__":
         "email" : "danieltest@cezar-trans.com",
         "company" : "Recruitment task",
         "website" : "www.google.pl",
-        "country" : "Pland",
+        "country" : "Poland",
         "country_code" : "+48",
         "phone" : "555666777"
     }

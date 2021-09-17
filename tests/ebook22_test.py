@@ -33,18 +33,10 @@ def get_driver():
                                     executable_path =executable_path)
     return driver
 
-
-@pytest.mark.find_title
-def test_title(get_driver):
-
-    url = "https://www.salesmanago.com/"
-
-    driver = get_driver
-    driver.get(url)
-    assert "SALESmanago" in driver.title
-
-@pytest.mark.move_to_ebook_list
-def test_shoud_pass_when_move_toEbooksListPage(get_driver):
+@pytest.fixture
+@pytest.mark.find_url_to_ebook
+@pytest.mark.parametrize("ebook_name", [("Online Consumer Trends 2020")])
+def get_ebook_url(get_driver, ebook_name):
 
     url = "https://www.salesmanago.com/"
 
@@ -66,7 +58,68 @@ def test_shoud_pass_when_move_toEbooksListPage(get_driver):
     driver.find_elements_by_xpath('//a[contains(text(),"Ebooks")]')[0].click()
     time.sleep(1)
 
-    assert "Knowledge Center" in driver.title
+
+    ebooks_list = driver.find_elements_by_xpath('//*[@class="ebook__img--container"]//a')
+
+    list_of_links = []
+    if ebooks_list:
+        for ebook in ebooks_list:
+            list_of_links.append(ebook.get_attribute('href'))
+
+    time.sleep(1)
+
+    que = Queue()
+
+    thread_list = []
+
+    for url in list_of_links:
+
+        worker = Thread(target=get_ebook_name, args=(que, url, ebook_name))
+        thread_list.append(worker)
+    for thread in thread_list:
+        thread.start()
+    for thread in thread_list:
+        thread.join()
+
+    correct_url = que.get()
+    
+    return correct_url
+
+
+
+# @pytest.mark.find_title
+# def test_title(get_driver):
+
+#     url = "https://www.salesmanago.com/"
+
+#     driver = get_driver
+#     driver.get(url)
+#     assert "SALESmanago" in driver.title
+
+# @pytest.mark.move_to_ebook_list
+# def test_shoud_pass_when_move_toEbooksListPage(get_driver):
+
+#     url = "https://www.salesmanago.com/"
+
+#     driver = get_driver
+
+#     driver.get(url)
+
+#     try:
+#         driver.wait.until(EC.presence_of_all_elements_located((By.ID, "nav-toggler")))
+#     except Exception as error:
+#         print("First wait ",error)
+        
+#     driver.find_element_by_id("nav-toggler").click()
+#     time.sleep(1)
+
+#     driver.find_elements_by_xpath('//a[contains(text(),"resources")]')[0].click()
+#     time.sleep(1)
+
+#     driver.find_elements_by_xpath('//a[contains(text(),"Ebooks")]')[0].click()
+#     time.sleep(1)
+
+#     assert "Knowledge Center" in driver.title
 
 
 def test_shoud_pass_when_get_list_of_urls(get_driver):
@@ -104,52 +157,11 @@ def test_shoud_pass_when_get_list_of_urls(get_driver):
 
 @pytest.mark.find_url_to_ebook
 @pytest.mark.parametrize("ebook_name", [("Online Consumer Trends 2020")])
-def test_shoud_pass_when_move_toSpecificEbookPage(get_driver, ebook_name):
+def test_shoud_pass_when_move_toSpecificEbookPage(get_driver, get_ebook_url, ebook_name):
 
-    url = "https://www.salesmanago.com/"
+    correct_url = get_ebook_url
 
     driver = get_driver
-
-    driver.get(url)
-
-    try:
-        driver.wait.until(EC.presence_of_all_elements_located((By.ID, "nav-toggler")))
-    except Exception as error:
-        print("First wait ",error)
-        
-    driver.find_element_by_id("nav-toggler").click()
-    time.sleep(1)
-
-    driver.find_elements_by_xpath('//a[contains(text(),"resources")]')[0].click()
-    time.sleep(1)
-
-    driver.find_elements_by_xpath('//a[contains(text(),"Ebooks")]')[0].click()
-    time.sleep(1)
-
-
-    ebooks_list = driver.find_elements_by_xpath('//*[@class="ebook__img--container"]//a')
-
-    list_of_links = []
-    if ebooks_list:
-        for ebook in ebooks_list:
-            list_of_links.append(ebook.get_attribute('href'))
-
-    time.sleep(1)
-
-    que = Queue()
-
-    thread_list = []
-
-    for url in list_of_links:
-
-        worker = Thread(target=get_ebook_name, args=(que, url, ebook_name))
-        thread_list.append(worker)
-    for thread in thread_list:
-        thread.start()
-    for thread in thread_list:
-        thread.join()
-
-    correct_url = que.get()
 
     try:
         driver.get(correct_url)
@@ -161,9 +173,8 @@ def test_shoud_pass_when_move_toSpecificEbookPage(get_driver, ebook_name):
 
 @pytest.mark.check_name
 @pytest.mark.parametrize("ebook_name, name", [("Online Consumer Trends 2020", 'Da')])
-def test_shoud_pass_when_nameIsInvalid(get_driver, ebook_name, name):
+def test_shoud_pass_when_nameIsInvalid(get_driver, get_ebook_url, ebook_name, name):
 
-    url = "https://www.salesmanago.com/"
 
     details = {
                 "ebook_name" : ebook_name,
@@ -171,55 +182,14 @@ def test_shoud_pass_when_nameIsInvalid(get_driver, ebook_name, name):
                 }
 
 
+    correct_url = get_ebook_url
+
     driver = get_driver
-
-    driver.get(url)
-
-    try:
-        driver.wait.until(EC.presence_of_all_elements_located((By.ID, "nav-toggler")))
-    except Exception as error:
-        print("First wait ",error)
-        
-    driver.find_element_by_id("nav-toggler").click()
-    time.sleep(1)
-
-    driver.find_elements_by_xpath('//a[contains(text(),"resources")]')[0].click()
-    time.sleep(1)
-
-    driver.find_elements_by_xpath('//a[contains(text(),"Ebooks")]')[0].click()
-    time.sleep(1)
-
-
-    ebooks_list = driver.find_elements_by_xpath('//*[@class="ebook__img--container"]//a')
-
-    list_of_links = []
-    if ebooks_list:
-        for ebook in ebooks_list:
-            list_of_links.append(ebook.get_attribute('href'))
-
-    time.sleep(1)
-
-    que = Queue()
-
-    thread_list = []
-
-    for url in list_of_links:
-
-        worker = Thread(target=get_ebook_name, args=(que, url, ebook_name))
-        thread_list.append(worker)
-    for thread in thread_list:
-        thread.start()
-    for thread in thread_list:
-        thread.join()
-
-    correct_url = que.get()
 
     try:
         driver.get(correct_url)
     except Exception as error:
         print(error)
-
-
 
         time.sleep(3)
 
@@ -242,9 +212,7 @@ def test_shoud_pass_when_nameIsInvalid(get_driver, ebook_name, name):
 
 @pytest.mark.check_email
 @pytest.mark.parametrize("ebook_name, name, email", [("Online Consumer Trends 2020", "Daniel", 'daniel.wincencik.benhauer+test@gmail.com')])
-def test_shoud_pass_when_emailIsInvalid(get_driver, ebook_name, name, email):
-
-    url = "https://www.salesmanago.com/"
+def test_shoud_pass_when_emailIsInvalid(get_driver, get_ebook_url, ebook_name, name, email):
 
     details = {
                 "ebook_name" : ebook_name,
@@ -254,52 +222,14 @@ def test_shoud_pass_when_emailIsInvalid(get_driver, ebook_name, name, email):
 
     driver = get_driver
 
-    driver.get(url)
+    correct_url = get_ebook_url
 
-    try:
-        driver.wait.until(EC.presence_of_all_elements_located((By.ID, "nav-toggler")))
-    except Exception as error:
-        print("First wait ",error)
-        
-    driver.find_element_by_id("nav-toggler").click()
-    time.sleep(1)
-
-    driver.find_elements_by_xpath('//a[contains(text(),"resources")]')[0].click()
-    time.sleep(1)
-
-    driver.find_elements_by_xpath('//a[contains(text(),"Ebooks")]')[0].click()
-    time.sleep(1)
-
-
-    ebooks_list = driver.find_elements_by_xpath('//*[@class="ebook__img--container"]//a')
-
-    list_of_links = []
-    if ebooks_list:
-        for ebook in ebooks_list:
-            list_of_links.append(ebook.get_attribute('href'))
-
-    time.sleep(1)
-
-    que = Queue()
-
-    thread_list = []
-
-    for url in list_of_links:
-
-        worker = Thread(target=get_ebook_name, args=(que, url, ebook_name))
-        thread_list.append(worker)
-    for thread in thread_list:
-        thread.start()
-    for thread in thread_list:
-        thread.join()
-
-    correct_url = que.get()
+    driver = get_driver
 
     try:
         driver.get(correct_url)
     except Exception as error:
         print(error)
-
 
 
         time.sleep(3)
@@ -323,9 +253,7 @@ def test_shoud_pass_when_emailIsInvalid(get_driver, ebook_name, name, email):
 
 @pytest.mark.check_company
 @pytest.mark.parametrize("ebook_name, name, email, company", [("Online Consumer Trends 2020", "Daniel" , 'daniel.wincencik.benhauer+testrekrutacja@salesmanago.com', '')])
-def test_shoud_pass_when_companyIsInvalid(get_driver, ebook_name, name, email, company):
-
-    url = "https://www.salesmanago.com/"
+def test_shoud_pass_when_companyIsInvalid(get_driver, get_ebook_url, ebook_name, name, email, company):
 
     details = {
                 "ebook_name" : ebook_name,
@@ -336,46 +264,9 @@ def test_shoud_pass_when_companyIsInvalid(get_driver, ebook_name, name, email, c
 
     driver = get_driver
 
-    driver.get(url)
+    correct_url = get_ebook_url
 
-    try:
-        driver.wait.until(EC.presence_of_all_elements_located((By.ID, "nav-toggler")))
-    except Exception as error:
-        print("First wait ",error)
-        
-    driver.find_element_by_id("nav-toggler").click()
-    time.sleep(1)
-
-    driver.find_elements_by_xpath('//a[contains(text(),"resources")]')[0].click()
-    time.sleep(1)
-
-    driver.find_elements_by_xpath('//a[contains(text(),"Ebooks")]')[0].click()
-    time.sleep(1)
-
-
-    ebooks_list = driver.find_elements_by_xpath('//*[@class="ebook__img--container"]//a')
-
-    list_of_links = []
-    if ebooks_list:
-        for ebook in ebooks_list:
-            list_of_links.append(ebook.get_attribute('href'))
-
-    time.sleep(1)
-
-    que = Queue()
-
-    thread_list = []
-
-    for url in list_of_links:
-
-        worker = Thread(target=get_ebook_name, args=(que, url, ebook_name))
-        thread_list.append(worker)
-    for thread in thread_list:
-        thread.start()
-    for thread in thread_list:
-        thread.join()
-
-    correct_url = que.get()
+    driver = get_driver
 
     try:
         driver.get(correct_url)
@@ -407,9 +298,7 @@ def test_shoud_pass_when_companyIsInvalid(get_driver, ebook_name, name, email, c
 
 @pytest.mark.check_website
 @pytest.mark.parametrize("ebook_name, name, email, company, website", [("Online Consumer Trends 2020", "Daniel" , 'daniel.wincencik.benhauer+testrekrutacja@salesmanago.com', 'TestCompany', "test")])
-def test_shoud_pass_when_websiteIsInvalid(get_driver, ebook_name, name, email, company, website):
-
-    url = "https://www.salesmanago.com/"
+def test_shoud_pass_when_websiteIsInvalid(get_driver, get_ebook_url, ebook_name, name, email, company, website):
 
     details = {
                 "ebook_name" : ebook_name,
@@ -419,49 +308,11 @@ def test_shoud_pass_when_websiteIsInvalid(get_driver, ebook_name, name, email, c
                 "website" : website
             }
 
-
     driver = get_driver
 
-    driver.get(url)
+    correct_url = get_ebook_url
 
-    try:
-        driver.wait.until(EC.presence_of_all_elements_located((By.ID, "nav-toggler")))
-    except Exception as error:
-        print("First wait ",error)
-        
-    driver.find_element_by_id("nav-toggler").click()
-    time.sleep(1)
-
-    driver.find_elements_by_xpath('//a[contains(text(),"resources")]')[0].click()
-    time.sleep(1)
-
-    driver.find_elements_by_xpath('//a[contains(text(),"Ebooks")]')[0].click()
-    time.sleep(1)
-
-
-    ebooks_list = driver.find_elements_by_xpath('//*[@class="ebook__img--container"]//a')
-
-    list_of_links = []
-    if ebooks_list:
-        for ebook in ebooks_list:
-            list_of_links.append(ebook.get_attribute('href'))
-
-    time.sleep(1)
-
-    que = Queue()
-
-    thread_list = []
-
-    for url in list_of_links:
-
-        worker = Thread(target=get_ebook_name, args=(que, url, ebook_name))
-        thread_list.append(worker)
-    for thread in thread_list:
-        thread.start()
-    for thread in thread_list:
-        thread.join()
-
-    correct_url = que.get()
+    driver = get_driver
 
     try:
         driver.get(correct_url)
@@ -497,9 +348,7 @@ def test_shoud_pass_when_websiteIsInvalid(get_driver, ebook_name, name, email, c
 
 @pytest.mark.check_country
 @pytest.mark.parametrize("ebook_name, name, email, company, website, country", [("Online Consumer Trends 2020", "Daniel" , 'daniel.wincencik.benhauer+testrekrutacja@salesmanago.com', 'TestCompany', 'test.pl' ,"Pland")])
-def test_shoud_pass_when_countryIsInvalid(get_driver, ebook_name, name, email, company, website, country):
-
-    url = "https://www.salesmanago.com/"
+def test_shoud_pass_when_countryIsInvalid(get_driver, get_ebook_url, ebook_name, name, email, company, website, country):
 
     details = {
                 "ebook_name" : ebook_name,
@@ -510,56 +359,16 @@ def test_shoud_pass_when_countryIsInvalid(get_driver, ebook_name, name, email, c
                 "country" : country
             }
 
-
     driver = get_driver
 
-    driver.get(url)
+    correct_url = get_ebook_url
 
-    try:
-        driver.wait.until(EC.presence_of_all_elements_located((By.ID, "nav-toggler")))
-    except Exception as error:
-        print("First wait ",error)
-        
-    driver.find_element_by_id("nav-toggler").click()
-    time.sleep(1)
-
-    driver.find_elements_by_xpath('//a[contains(text(),"resources")]')[0].click()
-    time.sleep(1)
-
-    driver.find_elements_by_xpath('//a[contains(text(),"Ebooks")]')[0].click()
-    time.sleep(1)
-
-
-    ebooks_list = driver.find_elements_by_xpath('//*[@class="ebook__img--container"]//a')
-
-    list_of_links = []
-    if ebooks_list:
-        for ebook in ebooks_list:
-            list_of_links.append(ebook.get_attribute('href'))
-
-    time.sleep(1)
-
-    que = Queue()
-
-    thread_list = []
-
-    for url in list_of_links:
-
-        worker = Thread(target=get_ebook_name, args=(que, url, ebook_name))
-        thread_list.append(worker)
-    for thread in thread_list:
-        thread.start()
-    for thread in thread_list:
-        thread.join()
-
-    correct_url = que.get()
+    driver = get_driver
 
     try:
         driver.get(correct_url)
     except Exception as error:
         print(error)
-
-
 
         time.sleep(3)
 
@@ -578,9 +387,7 @@ def test_shoud_pass_when_countryIsInvalid(get_driver, ebook_name, name, email, c
     
 @pytest.mark.check_phone_number
 @pytest.mark.parametrize("ebook_name, name, email, company, website, country, phone", [('Online Consumer Trends 2020', 'Daniel' , 'daniel.wincencik.benhauer+testrekrutacja@salesmanago.com', 'TestCompany', 'test.pl', 'Poland', '55666777')])
-def test_shoud_pass_when_phoneIsEmpty(get_driver, ebook_name, name, email, company, website, country, phone):
-
-    url = "https://www.salesmanago.com/"
+def test_shoud_pass_when_phoneIsEmpty(get_driver, get_ebook_url, ebook_name, name, email, company, website, country, phone):
 
     details = {
                 "ebook_name" : ebook_name,
@@ -592,49 +399,11 @@ def test_shoud_pass_when_phoneIsEmpty(get_driver, ebook_name, name, email, compa
                 "phone" : phone
             }
 
-
     driver = get_driver
 
-    driver.get(url)
+    correct_url = get_ebook_url
 
-    try:
-        driver.wait.until(EC.presence_of_all_elements_located((By.ID, "nav-toggler")))
-    except Exception as error:
-        print("First wait ",error)
-        
-    driver.find_element_by_id("nav-toggler").click()
-    time.sleep(1)
-
-    driver.find_elements_by_xpath('//a[contains(text(),"resources")]')[0].click()
-    time.sleep(1)
-
-    driver.find_elements_by_xpath('//a[contains(text(),"Ebooks")]')[0].click()
-    time.sleep(1)
-
-
-    ebooks_list = driver.find_elements_by_xpath('//*[@class="ebook__img--container"]//a')
-
-    list_of_links = []
-    if ebooks_list:
-        for ebook in ebooks_list:
-            list_of_links.append(ebook.get_attribute('href'))
-
-    time.sleep(1)
-
-    que = Queue()
-
-    thread_list = []
-
-    for url in list_of_links:
-
-        worker = Thread(target=get_ebook_name, args=(que, url, ebook_name))
-        thread_list.append(worker)
-    for thread in thread_list:
-        thread.start()
-    for thread in thread_list:
-        thread.join()
-
-    correct_url = que.get()
+    driver = get_driver
 
     try:
         driver.get(correct_url)
@@ -669,9 +438,7 @@ def test_shoud_pass_when_phoneIsEmpty(get_driver, ebook_name, name, email, compa
 
 @pytest.mark.check_phone_number
 @pytest.mark.parametrize("ebook_name, name, email, company, website, country, phone", [('Online Consumer Trends 2020', 'Daniel' , 'daniel.wincencik.benhauer+testrekrutacja@salesmanago.com', 'Test', 'test.pl', 'Poland', '55666777')])
-def test_shoud_pass_when_phoneIsInvalid(get_driver, ebook_name, name, email, company, website, country, phone):
-
-    url = "https://www.salesmanago.com/"
+def test_shoud_pass_when_phoneIsInvalid(get_driver, get_ebook_url, ebook_name, name, email, company, website, country, phone):
 
     details = {
                 "ebook_name" : ebook_name,
@@ -683,49 +450,11 @@ def test_shoud_pass_when_phoneIsInvalid(get_driver, ebook_name, name, email, com
                 "phone" : phone
             }
 
-
     driver = get_driver
 
-    driver.get(url)
+    correct_url = get_ebook_url
 
-    try:
-        driver.wait.until(EC.presence_of_all_elements_located((By.ID, "nav-toggler")))
-    except Exception as error:
-        print("First wait ",error)
-        
-    driver.find_element_by_id("nav-toggler").click()
-    time.sleep(1)
-
-    driver.find_elements_by_xpath('//a[contains(text(),"resources")]')[0].click()
-    time.sleep(1)
-
-    driver.find_elements_by_xpath('//a[contains(text(),"Ebooks")]')[0].click()
-    time.sleep(1)
-
-
-    ebooks_list = driver.find_elements_by_xpath('//*[@class="ebook__img--container"]//a')
-
-    list_of_links = []
-    if ebooks_list:
-        for ebook in ebooks_list:
-            list_of_links.append(ebook.get_attribute('href'))
-
-    time.sleep(1)
-
-    que = Queue()
-
-    thread_list = []
-
-    for url in list_of_links:
-
-        worker = Thread(target=get_ebook_name, args=(que, url, ebook_name))
-        thread_list.append(worker)
-    for thread in thread_list:
-        thread.start()
-    for thread in thread_list:
-        thread.join()
-
-    correct_url = que.get()
+    driver = get_driver
 
     try:
         driver.get(correct_url)
@@ -760,69 +489,28 @@ def test_shoud_pass_when_phoneIsInvalid(get_driver, ebook_name, name, email, com
 
 @pytest.mark.get_direct_download_url
 @pytest.mark.parametrize("ebook_name, name, email, company, website, country, phone", [('Online Consumer Trends 2020', 'Daniel' , 'daniel.wincencik.benhauer+testrekrutacja@salesmanago.com', 'Test', 'test.pl', 'Poland', '555666777')])
-def test_shoud_pass_when_moveToThanksPage(get_driver, ebook_name, name, email, company, website, country, phone):
-
-    url = "https://www.salesmanago.com/"
+def test_shoud_pass_when_moveToThanksPage(get_driver, get_ebook_url, ebook_name, name, email, company, website, country, phone):
 
     details = {
-    "ebook_name" : ebook_name,
-    "name" : name,
-    "email" : email,
-    "company" : company,
-    "website" : website,
-    "country" : country,
-    "phone" : phone
-}
-
+                "ebook_name" : ebook_name,
+                "name" : name,
+                "email" : email,
+                "company" : company,
+                "website" : website,
+                "country" : country,
+                "phone" : phone
+            }
 
     driver = get_driver
 
-    driver.get(url)
+    correct_url = get_ebook_url
 
-    try:
-        driver.wait.until(EC.presence_of_all_elements_located((By.ID, "nav-toggler")))
-    except Exception as error:
-        print("First wait ",error)
-        
-    driver.find_element_by_id("nav-toggler").click()
-    time.sleep(1)
-
-    driver.find_elements_by_xpath('//a[contains(text(),"resources")]')[0].click()
-    time.sleep(1)
-
-    driver.find_elements_by_xpath('//a[contains(text(),"Ebooks")]')[0].click()
-    time.sleep(1)
-
-
-    ebooks_list = driver.find_elements_by_xpath('//*[@class="ebook__img--container"]//a')
-
-    list_of_links = []
-    if ebooks_list:
-        for ebook in ebooks_list:
-            list_of_links.append(ebook.get_attribute('href'))
-
-    time.sleep(1)
-
-    que = Queue()
-
-    thread_list = []
-
-    for url in list_of_links:
-
-        worker = Thread(target=get_ebook_name, args=(que, url, ebook_name))
-        thread_list.append(worker)
-    for thread in thread_list:
-        thread.start()
-    for thread in thread_list:
-        thread.join()
-
-    correct_url = que.get()
+    driver = get_driver
 
     try:
         driver.get(correct_url)
     except Exception as error:
         print(error)
-
 
 
         time.sleep(3)
