@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 
-def get_ebook_name(self, url):
+def get_ebook_name(url, ebook_name):
 
     headers = {
     "User-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36 Edg/89.0.774.77",
@@ -15,7 +15,12 @@ def get_ebook_name(self, url):
     except Exception as error:
         print(error)
     
+    print(soup)
     name = soup.title.string
 
-    if self.account['ebook_name'] in name:
+    if ebook_name in name:
         return url
+
+if __name__ == '__main__':
+
+    get_ebook_name()
