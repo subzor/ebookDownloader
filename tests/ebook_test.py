@@ -1,5 +1,4 @@
 
-
 import pytest
 import os
 import time
@@ -13,9 +12,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 
-
 from get_url import get_ebook_name
-
 
 
 def go_to_destination(driver):
@@ -23,8 +20,8 @@ def go_to_destination(driver):
     try:
         driver.WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.ID, "nav-toggler")))
     except Exception as error:
-        print("First wait ",error)
-        
+        print(error)
+
     driver.find_element_by_id("nav-toggler").click()
     time.sleep(1)
 
@@ -39,7 +36,7 @@ def get_ebooks_list(driver):
     try:
         driver.WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.XPATH, '//*[@class="ebook__img--container"]//a')))
     except Exception as error:
-        print("First wait ",error)
+        print(error)
 
     ebooks_list = driver.find_elements_by_xpath('//*[@class="ebook__img--container"]//a')
 
@@ -49,14 +46,12 @@ def get_ebooks_list(driver):
             list_of_links.append(ebook.get_attribute('href'))
     return list_of_links
 
-
 def get_url_from_thread(list_of_links, ebook_name):
     que = Queue()
 
     thread_list = []
 
     for url in list_of_links:
-
         worker = Thread(target=get_ebook_name, args=(que, url, ebook_name))
         thread_list.append(worker)
     for thread in thread_list:
@@ -79,6 +74,12 @@ def minimalise_chat_and_click_forward(driver):
     driver.find_element_by_xpath('//*[@class="fa fa-angle-right fa-lg"]').click()
 
 def set_input_boxes(driver, details):
+
+    try:
+        driver.WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.XPATH, '//*[@class="fa fa-angle-right fa-lg"]')))
+    except Exception as error:
+        print(error)
+
     driver.find_element_by_name("name").send_keys(details['name'])
     driver.find_element_by_id("email").send_keys(details['email'])
     driver.find_element_by_name("company").send_keys(details['company'])
@@ -86,7 +87,6 @@ def set_input_boxes(driver, details):
     country_select = Select(driver.find_element_by_id("countryOptions"))
     country_select.select_by_visible_text(details['country'])
     driver.find_element_by_name("phoneNumber").send_keys(details['phone'])
-
 
 @pytest.fixture
 def get_driver():
@@ -119,390 +119,323 @@ def get_ebook_url(get_driver, ebook_name):
     time.sleep(1)
 
     correct_url = get_url_from_thread(list_of_links=list_of_links, ebook_name=ebook_name)
-    
+
     return correct_url
 
+@pytest.mark.find_title
+def test_title(get_driver):
 
+    url = "https://www.salesmanago.com/"
 
-# @pytest.mark.find_title
-# def test_title(get_driver):
+    driver = get_driver
+    driver.get(url)
+    assert "SALESmanago" in driver.title
 
-#     url = "https://www.salesmanago.com/"
+@pytest.mark.move_to_ebook_list
+def test_shoud_pass_when_move_toEbooksListPage(get_driver):
 
-#     driver = get_driver
-#     driver.get(url)
-#     assert "SALESmanago" in driver.title
+    url = "https://www.salesmanago.com/"
 
-# @pytest.mark.move_to_ebook_list
-# def test_shoud_pass_when_move_toEbooksListPage(get_driver):
+    driver = get_driver
 
-#     url = "https://www.salesmanago.com/"
+    driver.get(url)
 
-#     driver = get_driver
+    go_to_destination(driver=driver)
 
-#     driver.get(url)
+    time.sleep(1)
 
-#     go_to_destination(driver=driver)
+    assert "Knowledge Center" in driver.title
 
-#     time.sleep(1)
+def test_shoud_pass_when_get_list_of_urls(get_driver):
 
-#     assert "Knowledge Center" in driver.title
+    url = "https://www.salesmanago.com/"
 
+    driver = get_driver
 
-# def test_shoud_pass_when_get_list_of_urls(get_driver):
+    driver.get(url)
 
-#     url = "https://www.salesmanago.com/"
+    go_to_destination(driver=driver)
 
-#     driver = get_driver
+    list_of_links = get_ebooks_list(driver=driver)
 
-#     driver.get(url)
+    assert (isinstance(list_of_links, list) and (len(list_of_links) > 0 ))
 
-#     go_to_destination(driver=driver)
+@pytest.mark.find_url_to_ebook
+@pytest.mark.parametrize("ebook_name", [("Online Consumer Trends 2020")])
+def test_shoud_pass_when_move_toSpecificEbookPage(get_driver, get_ebook_url, ebook_name):
 
-#     list_of_links = get_ebooks_list(driver=driver)
+    correct_url = get_ebook_url
 
-#     assert (isinstance(list_of_links, list) and (len(list_of_links) > 0 ))
+    driver = get_driver
 
+    try:
+        driver.get(correct_url)
+    except Exception as error:
+        print(error)
 
-# @pytest.mark.find_url_to_ebook
-# @pytest.mark.parametrize("ebook_name", [("Online Consumer Trends 2020")])
-# def test_shoud_pass_when_move_toSpecificEbookPage(get_driver, get_ebook_url, ebook_name):
+    assert ebook_name in driver.title
 
-#     correct_url = get_ebook_url
+@pytest.mark.check_name
+@pytest.mark.parametrize("ebook_name, name", [("Online Consumer Trends 2020", 'Da')])
+def test_shoud_pass_when_nameIsInvalid(get_driver, get_ebook_url, ebook_name, name):
 
-#     driver = get_driver
 
-#     try:
-#         driver.get(correct_url)
-#     except Exception as error:
-#         print(error)
+    details = {
+                "ebook_name" : ebook_name,
+                "name" : name
+                }
 
+    correct_url = get_ebook_url
 
-#     assert ebook_name in driver.title
+    driver = get_driver
 
-# @pytest.mark.check_name
-# @pytest.mark.parametrize("ebook_name, name", [("Online Consumer Trends 2020", 'Da')])
-# def test_shoud_pass_when_nameIsInvalid(get_driver, get_ebook_url, ebook_name, name):
+    try:
+        driver.get(correct_url)
+    except Exception as error:
+        print(error)
 
+    time.sleep(1)
 
-#     details = {
-#                 "ebook_name" : ebook_name,
-#                 "name" : name
-#                 }
+    driver.find_element_by_name("name").send_keys(details['name'])
 
+    try:
+        minimalise_chat_and_click_forward(driver=driver)
+    except Exception as error:
+        print(error)
 
-#     correct_url = get_ebook_url
+    time.sleep(1)
 
-#     driver = get_driver
+    assert "Please enter at least 3 characters." in driver.find_element_by_xpath('//*[@id="name-error"]').text
 
-#     try:
-#         driver.get(correct_url)
-#     except Exception as error:
-#         print(error)
+@pytest.mark.check_email
+@pytest.mark.parametrize("ebook_name, name, email", [("Online Consumer Trends 2020", "Daniel", 'daniel.wincencik.benhauer+test@gmail.com')])
+def test_shoud_pass_when_emailIsInvalid(get_driver, get_ebook_url, ebook_name, name, email):
 
-#     time.sleep(1)
+    details = {
+                "ebook_name" : ebook_name,
+                "name" : name,
+                "email" : email
+            }
 
-#     driver.find_element_by_name("name").send_keys(details['name'])
+    driver = get_driver
 
-#     try:
-#         minimalise_chat_and_click_forward(driver=driver)
-#     except Exception as error:
-#         print(error)
+    correct_url = get_ebook_url
 
+    driver = get_driver
 
-#     time.sleep(1)
+    try:
+        driver.get(correct_url)
+    except Exception as error:
+        print(error)
 
+    time.sleep(1)
 
-#     assert "Please enter at least 3 characters." in driver.find_element_by_xpath('//*[@id="name-error"]').text
+    driver.find_element_by_name("name").send_keys(details['name'])
+    driver.find_element_by_id("email").send_keys(details['email'])
 
+    try:
+        minimalise_chat_and_click_forward(driver=driver)
+    except Exception as error:
+        print(error)
 
-# @pytest.mark.check_email
-# @pytest.mark.parametrize("ebook_name, name, email", [("Online Consumer Trends 2020", "Daniel", 'daniel.wincencik.benhauer+test@gmail.com')])
-# def test_shoud_pass_when_emailIsInvalid(get_driver, get_ebook_url, ebook_name, name, email):
+    time.sleep(1)
 
-#     details = {
-#                 "ebook_name" : ebook_name,
-#                 "name" : name,
-#                 "email" : email
-#             }
+    assert "Please enter your business email." in driver.find_element_by_xpath('//*[@id="email-error"]').text
 
-#     driver = get_driver
+@pytest.mark.check_company
+@pytest.mark.parametrize("ebook_name, name, email, company", [("Online Consumer Trends 2020", "Daniel" , 'daniel.wincencik.benhauer+testrekrutacja@salesmanago.com', '')])
+def test_shoud_pass_when_companyIsInvalid(get_driver, get_ebook_url, ebook_name, name, email, company):
 
-#     correct_url = get_ebook_url
+    details = {
+                "ebook_name" : ebook_name,
+                "name" : name,
+                "email" : email,
+                "company" : company
+            }
 
-#     driver = get_driver
+    driver = get_driver
 
-#     try:
-#         driver.get(correct_url)
-#     except Exception as error:
-#         print(error)
+    correct_url = get_ebook_url
 
+    driver = get_driver
 
-#     time.sleep(1)
+    try:
+        driver.get(correct_url)
+    except Exception as error:
+        print(error)
 
-#     driver.find_element_by_name("name").send_keys(details['name'])
-#     driver.find_element_by_id("email").send_keys(details['email'])
+    time.sleep(1)
 
-#     try:
-#         minimalise_chat_and_click_forward(driver=driver)
-#     except Exception as error:
-#         print(error)
+    driver.find_element_by_name("name").send_keys(details['name'])
+    driver.find_element_by_id("email").send_keys(details['email'])
+    driver.find_element_by_name("company").send_keys(details['company'])
 
+    try:
+        minimalise_chat_and_click_forward(driver=driver)
+    except Exception as error:
+        print(error)
 
-#     time.sleep(1)
+    time.sleep(1)
 
+    assert "This field is required." in driver.find_element_by_xpath('//*[@id="company-error"]').text
 
-#     assert "Please enter your business email." in driver.find_element_by_xpath('//*[@id="email-error"]').text
+@pytest.mark.check_website
+@pytest.mark.parametrize("ebook_name, name, email, company, website", [("Online Consumer Trends 2020", "Daniel" , 'daniel.wincencik.benhauer+testrekrutacja@salesmanago.com', 'TestCompany', "test")])
+def test_shoud_pass_when_websiteIsInvalid(get_driver, get_ebook_url, ebook_name, name, email, company, website):
 
-# @pytest.mark.check_company
-# @pytest.mark.parametrize("ebook_name, name, email, company", [("Online Consumer Trends 2020", "Daniel" , 'daniel.wincencik.benhauer+testrekrutacja@salesmanago.com', '')])
-# def test_shoud_pass_when_companyIsInvalid(get_driver, get_ebook_url, ebook_name, name, email, company):
+    details = {
+                "ebook_name" : ebook_name,
+                "name" : name,
+                "email" : email,
+                "company" : company,
+                "website" : website
+            }
 
-#     details = {
-#                 "ebook_name" : ebook_name,
-#                 "name" : name,
-#                 "email" : email,
-#                 "company" : company
-#             }
+    driver = get_driver
 
-#     driver = get_driver
+    correct_url = get_ebook_url
 
-#     correct_url = get_ebook_url
+    driver = get_driver
 
-#     driver = get_driver
+    try:
+        driver.get(correct_url)
+    except Exception as error:
+        print(error)
 
-#     try:
-#         driver.get(correct_url)
-#     except Exception as error:
-#         print(error)
+    time.sleep(1)
 
+    driver.find_element_by_name("name").send_keys(details['name'])
+    driver.find_element_by_id("email").send_keys(details['email'])
+    driver.find_element_by_name("company").send_keys(details['company'])
+    driver.find_element_by_name("url").send_keys(details['website'])
 
+    try:
+        minimalise_chat_and_click_forward(driver=driver)
+    except Exception as error:
+        print(error)
 
-#     time.sleep(1)
+    time.sleep(1)
 
-#     driver.find_element_by_name("name").send_keys(details['name'])
-#     driver.find_element_by_id("email").send_keys(details['email'])
-#     driver.find_element_by_name("company").send_keys(details['company'])
+    assert "Please, insert correct URL" in driver.find_element_by_xpath('//*[@id="url-error"]').text
 
-#     try:
-#         minimalise_chat_and_click_forward(driver=driver)
-#     except Exception as error:
-#         print(error)
+@pytest.mark.check_country
+@pytest.mark.parametrize("ebook_name, name, email, company, website, country", [("Online Consumer Trends 2020", "Daniel" , 'daniel.wincencik.benhauer+testrekrutacja@salesmanago.com', 'TestCompany', 'test.pl' ,"Pland")])
+def test_shoud_pass_when_countryIsInvalid(get_driver, get_ebook_url, ebook_name, name, email, company, website, country):
 
+    details = {
+                "ebook_name" : ebook_name,
+                "name" : name,
+                "email" : email,
+                "company" : company,
+                "website" : website,
+                "country" : country
+            }
 
-#     time.sleep(1)
+    driver = get_driver
 
+    correct_url = get_ebook_url
 
-#     assert "This field is required." in driver.find_element_by_xpath('//*[@id="company-error"]').text
+    driver = get_driver
 
+    try:
+        driver.get(correct_url)
+    except Exception as error:
+        print(error)
 
-# @pytest.mark.check_website
-# @pytest.mark.parametrize("ebook_name, name, email, company, website", [("Online Consumer Trends 2020", "Daniel" , 'daniel.wincencik.benhauer+testrekrutacja@salesmanago.com', 'TestCompany', "test")])
-# def test_shoud_pass_when_websiteIsInvalid(get_driver, get_ebook_url, ebook_name, name, email, company, website):
+    time.sleep(1)
 
-#     details = {
-#                 "ebook_name" : ebook_name,
-#                 "name" : name,
-#                 "email" : email,
-#                 "company" : company,
-#                 "website" : website
-#             }
+    driver.find_element_by_name("name").send_keys(details['name'])
+    driver.find_element_by_id("email").send_keys(details['email'])
+    driver.find_element_by_name("company").send_keys(details['company'])
+    driver.find_element_by_name("url").send_keys(details['website'])
+    country_select = Select(driver.find_element_by_id("countryOptions"))
+    try:
+        country_select.select_by_visible_text(details['country'])
+        assert False
+    except Exception as e:
+        assert True
 
-#     driver = get_driver
+@pytest.mark.check_phone_number
+@pytest.mark.parametrize("ebook_name, name, email, company, website, country, phone", [('Online Consumer Trends 2020', 'Daniel' , 'daniel.wincencik.benhauer+testrekrutacja@salesmanago.com', 'TestCompany', 'test.pl', 'Poland', '55666777')])
+def test_shoud_pass_when_phoneIsEmpty(get_driver, get_ebook_url, ebook_name, name, email, company, website, country, phone):
 
-#     correct_url = get_ebook_url
+    details = {
+                "ebook_name" : ebook_name,
+                "name" : name,
+                "email" : email,
+                "company" : company,
+                "website" : website,
+                "country" : country,
+                "phone" : phone
+            }
 
-#     driver = get_driver
+    driver = get_driver
 
-#     try:
-#         driver.get(correct_url)
-#     except Exception as error:
-#         print(error)
+    correct_url = get_ebook_url
 
+    driver = get_driver
 
+    try:
+        driver.get(correct_url)
+    except Exception as error:
+        print(error)
 
-#     time.sleep(1)
+    time.sleep(1)
 
-#     driver.find_element_by_name("name").send_keys(details['name'])
-#     driver.find_element_by_id("email").send_keys(details['email'])
-#     driver.find_element_by_name("company").send_keys(details['company'])
-#     driver.find_element_by_name("url").send_keys(details['website'])
+    set_input_boxes(driver=driver, details=details)
 
-#     try:
-#         minimalise_chat_and_click_forward(driver=driver)
-#     except Exception as error:
-#         print(error)
+    try:
+        minimalise_chat_and_click_forward(driver=driver)
+    except Exception as error:
+        print(error)
 
-#     time.sleep(1)
+    time.sleep(1)
 
-#     assert "Please, insert correct URL" in driver.find_element_by_xpath('//*[@id="url-error"]').text
+    assert driver.find_element_by_xpath('//*[@id="phoneNumber"]').is_displayed()
 
 
+@pytest.mark.check_phone_number
+@pytest.mark.parametrize("ebook_name, name, email, company, website, country, phone", [('Online Consumer Trends 2020', 'Daniel' , 'daniel.wincencik.benhauer+testrekrutacja@salesmanago.com', 'Test', 'test.pl', 'Poland', '55666777')])
+def test_shoud_pass_when_phoneIsInvalid(get_driver, get_ebook_url, ebook_name, name, email, company, website, country, phone):
 
+    details = {
+                "ebook_name" : ebook_name,
+                "name" : name,
+                "email" : email,
+                "company" : company,
+                "website" : website,
+                "country" : country,
+                "phone" : phone
+            }
 
+    driver = get_driver
 
-# @pytest.mark.check_country
-# @pytest.mark.parametrize("ebook_name, name, email, company, website, country", [("Online Consumer Trends 2020", "Daniel" , 'daniel.wincencik.benhauer+testrekrutacja@salesmanago.com', 'TestCompany', 'test.pl' ,"Pland")])
-# def test_shoud_pass_when_countryIsInvalid(get_driver, get_ebook_url, ebook_name, name, email, company, website, country):
+    correct_url = get_ebook_url
 
-#     details = {
-#                 "ebook_name" : ebook_name,
-#                 "name" : name,
-#                 "email" : email,
-#                 "company" : company,
-#                 "website" : website,
-#                 "country" : country
-#             }
+    driver = get_driver
 
-#     driver = get_driver
+    try:
+        driver.get(correct_url)
+    except Exception as error:
+        print(error)
 
-#     correct_url = get_ebook_url
+    time.sleep(1)
 
-#     driver = get_driver
+    set_input_boxes(driver=driver, details=details)
 
-#     try:
-#         driver.get(correct_url)
-#     except Exception as error:
-#         print(error)
+    try:
+        minimalise_chat_and_click_forward(driver=driver)
+    except Exception as error:
+        print(error)
 
-#     time.sleep(1)
+    time.sleep(1)
 
-#     driver.find_element_by_name("name").send_keys(details['name'])
-#     driver.find_element_by_id("email").send_keys(details['email'])
-#     driver.find_element_by_name("company").send_keys(details['company'])
-#     driver.find_element_by_name("url").send_keys(details['website'])
-#     country_select = Select(driver.find_element_by_id("countryOptions"))
-#     try:
-#         country_select.select_by_visible_text(details['country'])
-#         assert False
-#     except Exception as e:
-#         assert True
+    assert driver.find_element_by_xpath('//*[@class="error diallingCode-error"]').is_displayed()
 
 
-    
-# @pytest.mark.check_phone_number
-# @pytest.mark.parametrize("ebook_name, name, email, company, website, country, phone", [('Online Consumer Trends 2020', 'Daniel' , 'daniel.wincencik.benhauer+testrekrutacja@salesmanago.com', 'TestCompany', 'test.pl', 'Poland', '55666777')])
-# def test_shoud_pass_when_phoneIsEmpty(get_driver, get_ebook_url, ebook_name, name, email, company, website, country, phone):
-
-#     details = {
-#                 "ebook_name" : ebook_name,
-#                 "name" : name,
-#                 "email" : email,
-#                 "company" : company,
-#                 "website" : website,
-#                 "country" : country,
-#                 "phone" : phone
-#             }
-
-#     driver = get_driver
-
-#     correct_url = get_ebook_url
-
-#     driver = get_driver
-
-#     try:
-#         driver.get(correct_url)
-#     except Exception as error:
-#         print(error)
-
-
-
-#     time.sleep(1)
-
-#     set_input_boxes(driver=driver, details=details)
-
-#     try:
-#         minimalise_chat_and_click_forward(driver=driver)
-#     except Exception as error:
-#         print(error)
-
-#     time.sleep(1)
-
-#     assert driver.find_element_by_xpath('//*[@id="phoneNumber"]').is_displayed()
-
-
-# @pytest.mark.check_phone_number
-# @pytest.mark.parametrize("ebook_name, name, email, company, website, country, phone", [('Online Consumer Trends 2020', 'Daniel' , 'daniel.wincencik.benhauer+testrekrutacja@salesmanago.com', 'Test', 'test.pl', 'Poland', '55666777')])
-# def test_shoud_pass_when_phoneIsInvalid(get_driver, get_ebook_url, ebook_name, name, email, company, website, country, phone):
-
-#     details = {
-#                 "ebook_name" : ebook_name,
-#                 "name" : name,
-#                 "email" : email,
-#                 "company" : company,
-#                 "website" : website,
-#                 "country" : country,
-#                 "phone" : phone
-#             }
-
-#     driver = get_driver
-
-#     correct_url = get_ebook_url
-
-#     driver = get_driver
-
-#     try:
-#         driver.get(correct_url)
-#     except Exception as error:
-#         print(error)
-
-#     time.sleep(1)
-
-#     set_input_boxes(driver=driver, details=details)
-
-#     try:
-#         minimalise_chat_and_click_forward(driver=driver)
-#     except Exception as error:
-#         print(error)
-
-#     time.sleep(1)
-
-#     assert driver.find_element_by_xpath('//*[@class="error diallingCode-error"]').is_displayed()
-
-
-# @pytest.mark.get_direct_download_url
-# @pytest.mark.parametrize("ebook_name, name, email, company, website, country, phone", [('Online Consumer Trends 2020', 'Daniel' , 'daniel.wincencik.benhauer+testrekrutacja@salesmanago.com', 'Test', 'test.pl', 'Poland', '555666777')])
-# def test_shoud_pass_when_moveToThanksPage(get_driver, get_ebook_url, ebook_name, name, email, company, website, country, phone):
-
-#     details = {
-#                 "ebook_name" : ebook_name,
-#                 "name" : name,
-#                 "email" : email,
-#                 "company" : company,
-#                 "website" : website,
-#                 "country" : country,
-#                 "phone" : phone
-#             }
-
-#     driver = get_driver
-
-#     correct_url = get_ebook_url
-
-#     driver = get_driver
-
-#     try:
-#         driver.get(correct_url)
-#     except Exception as error:
-#         print(error)
-
-
-#     time.sleep(1)
-
-#     set_input_boxes(driver=driver, details=details)
-
-#     try:
-#         minimalise_chat_and_click_forward(driver=driver)
-#     except Exception as error:
-#         print(error)
-
-#     time.sleep(1)
-
-#     assert driver.find_element_by_xpath('//*[@class="thanks-message"]').is_displayed()
-
-
-@pytest.mark.check_file_exist
+@pytest.mark.get_direct_download_url
 @pytest.mark.parametrize("ebook_name, name, email, company, website, country, phone", [('Online Consumer Trends 2020', 'Daniel' , 'daniel.wincencik.benhauer+testrekrutacja@salesmanago.com', 'Test', 'test.pl', 'Poland', '555666777')])
-def test_shoud_pass_when_ebookExist(get_driver, get_ebook_url, ebook_name, name, email, company, website, country, phone):
+def test_shoud_pass_when_moveToThanksPage(get_driver, get_ebook_url, ebook_name, name, email, company, website, country, phone):
 
     details = {
                 "ebook_name" : ebook_name,
@@ -537,6 +470,49 @@ def test_shoud_pass_when_ebookExist(get_driver, get_ebook_url, ebook_name, name,
 
     time.sleep(1)
 
+    assert driver.find_element_by_xpath('//*[@class="thanks-message"]').is_displayed()
+
+
+@pytest.mark.check_file_exist
+@pytest.mark.parametrize("ebook_name, name, email, company, website, country, phone", [('Online Consumer Trends 2020', 'Daniel' , 'daniel.wincencik.benhauer+testrekrutacja@salesmanago.com', 'Test', 'test.pl', 'Poland', '555666777')])
+def test_shoud_pass_when_ebookExist(get_driver, get_ebook_url, ebook_name, name, email, company, website, country, phone):
+
+    details = {
+                "ebook_name" : ebook_name,
+                "name" : name,
+                "email" : email,
+                "company" : company,
+                "website" : website,
+                "country" : country,
+                "phone" : phone
+            }
+
+    driver = get_driver
+
+    correct_url = get_ebook_url
+
+    driver = get_driver
+
+    try:
+        driver.get(correct_url)
+    except Exception as error:
+        print(error)
+
+    time.sleep(1)
+
+    set_input_boxes(driver=driver, details=details)
+
+    try:
+        minimalise_chat_and_click_forward(driver=driver)
+    except Exception as error:
+        print(error)
+
+    time.sleep(1)
+
+    try:
+        driver.WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.XPATH, '//a[contains(text(),"HERE")]')))
+    except Exception as error:
+        print(error)
     link_to_pdf = driver.find_element_by_xpath('//a[contains(text(),"HERE")]').get_attribute("href")
 
     time.sleep(1)
@@ -548,5 +524,3 @@ def test_shoud_pass_when_ebookExist(get_driver, get_ebook_url, ebook_name, name,
     is_file = os.path.isfile(os.path.join(os.path.dirname(__file__),"download" ,details["ebook_name"] + ".pdf"))
 
     assert is_file
-
-
