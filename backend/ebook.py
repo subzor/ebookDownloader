@@ -116,15 +116,23 @@ class Ebook:
         self.driver.find_element_by_name("company").send_keys(self.account['company'])
         self.driver.find_element_by_name("url").send_keys(self.account['website'])
         country_select = Select(self.driver.find_element_by_id("countryOptions"))
-        country_select.select_by_visible_text(self.account['country'])
+        try:
+            country_select.select_by_visible_text(self.account['country'])
+        except Exception as error:
+            print(error)
         self.driver.find_element_by_name("phoneNumber").send_keys(self.account['phone'])
-        chat_frame = self.driver.find_element_by_class_name("bhr-chat__messenger")
-        self.driver.switch_to.frame(chat_frame)
-        self.driver.find_element_by_class_name("bhr-chat-messenger__minimalise").click()
-        self.driver.switch_to.default_content()
-        self.driver.find_element_by_xpath('//*[@class="fa fa-angle-right fa-lg"]').click()
+
+        try:
+            chat_frame = self.driver.find_element_by_class_name("bhr-chat__messenger")
+            self.driver.switch_to.frame(chat_frame)
+            self.driver.find_element_by_class_name("bhr-chat-messenger__minimalise").click()
+            self.driver.switch_to.default_content()
+            self.driver.find_element_by_xpath('//*[@class="fa fa-angle-right fa-lg"]').click()
+        except Exception as error:
+            print(error)
 
         time.sleep(3)
+
         link_to_pdf = self.driver.find_element_by_xpath('//a[contains(text(),"HERE")]').get_attribute("href")
 
         time.sleep(1)
@@ -147,7 +155,7 @@ if __name__ == "__main__":
         "email" : "danieltest@cezar-trans.com",
         "company" : "Recruitment task",
         "website" : "www.google.pl",
-        "country" : "Poland",
+        "country" : "Pland",
         "country_code" : "+48",
         "phone" : "555666777"
     }

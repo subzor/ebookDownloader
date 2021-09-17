@@ -156,22 +156,619 @@ def get_driver():
 
 #     assert ebook_name in driver.title
 
+@pytest.mark.check_name
+@pytest.mark.parametrize("ebook_name, name", [("Online Consumer Trends 2020", 'Da')])
+def test_shoud_pass_when_nameIsInvalid(get_driver, ebook_name, name):
 
-@pytest.mark.find_url_to_ebook
-@pytest.mark.parametrize("ebook_name, email", [("Online Consumer Trends 2020", 'daniel.wincencik.benhauer+testrekrutacja@salesmanago.com')])
-def test_shoud_pass_when_move_toSpecificEbookPage(get_driver, ebook_name, email):
+    url = "https://www.salesmanago.com/"
+
+    details = {
+                "ebook_name" : ebook_name,
+                "name" : name
+                }
+
+
+    driver = get_driver
+
+    driver.get(url)
+
+    try:
+        driver.wait.until(EC.presence_of_all_elements_located((By.ID, "nav-toggler")))
+    except Exception as error:
+        print("First wait ",error)
+        
+    driver.find_element_by_id("nav-toggler").click()
+    time.sleep(1)
+
+    driver.find_elements_by_xpath('//a[contains(text(),"resources")]')[0].click()
+    time.sleep(1)
+
+    driver.find_elements_by_xpath('//a[contains(text(),"Ebooks")]')[0].click()
+    time.sleep(1)
+
+
+    ebooks_list = driver.find_elements_by_xpath('//*[@class="ebook__img--container"]//a')
+
+    list_of_links = []
+    if ebooks_list:
+        for ebook in ebooks_list:
+            list_of_links.append(ebook.get_attribute('href'))
+
+    time.sleep(1)
+
+    que = Queue()
+
+    thread_list = []
+
+    for url in list_of_links:
+
+        worker = Thread(target=get_ebook_name, args=(que, url, ebook_name))
+        thread_list.append(worker)
+    for thread in thread_list:
+        thread.start()
+    for thread in thread_list:
+        thread.join()
+
+    correct_url = que.get()
+
+    try:
+        driver.get(correct_url)
+    except Exception as error:
+        print(error)
+
+
+
+        time.sleep(3)
+
+    driver.find_element_by_name("name").send_keys(details['name'])
+
+    try:
+        chat_frame = driver.find_element_by_class_name("bhr-chat__messenger")
+        driver.switch_to.frame(chat_frame)
+        driver.find_element_by_class_name("bhr-chat-messenger__minimalise").click()
+        driver.switch_to.default_content()
+    except Exception as error:
+        print(error)
+
+    driver.find_element_by_xpath('//*[@class="fa fa-angle-right fa-lg"]').click()
+    time.sleep(1)
+
+
+    assert "Please enter at least 3 characters." in driver.find_element_by_xpath('//*[@id="name-error"]').text
+
+
+@pytest.mark.check_email
+@pytest.mark.parametrize("ebook_name, name, email", [("Online Consumer Trends 2020", "Daniel", 'daniel.wincencik.benhauer+test@gmail.com')])
+def test_shoud_pass_when_emailIsInvalid(get_driver, ebook_name, name, email):
+
+    url = "https://www.salesmanago.com/"
+
+    details = {
+                "ebook_name" : ebook_name,
+                "name" : name,
+                "email" : email
+            }
+
+    driver = get_driver
+
+    driver.get(url)
+
+    try:
+        driver.wait.until(EC.presence_of_all_elements_located((By.ID, "nav-toggler")))
+    except Exception as error:
+        print("First wait ",error)
+        
+    driver.find_element_by_id("nav-toggler").click()
+    time.sleep(1)
+
+    driver.find_elements_by_xpath('//a[contains(text(),"resources")]')[0].click()
+    time.sleep(1)
+
+    driver.find_elements_by_xpath('//a[contains(text(),"Ebooks")]')[0].click()
+    time.sleep(1)
+
+
+    ebooks_list = driver.find_elements_by_xpath('//*[@class="ebook__img--container"]//a')
+
+    list_of_links = []
+    if ebooks_list:
+        for ebook in ebooks_list:
+            list_of_links.append(ebook.get_attribute('href'))
+
+    time.sleep(1)
+
+    que = Queue()
+
+    thread_list = []
+
+    for url in list_of_links:
+
+        worker = Thread(target=get_ebook_name, args=(que, url, ebook_name))
+        thread_list.append(worker)
+    for thread in thread_list:
+        thread.start()
+    for thread in thread_list:
+        thread.join()
+
+    correct_url = que.get()
+
+    try:
+        driver.get(correct_url)
+    except Exception as error:
+        print(error)
+
+
+
+        time.sleep(3)
+
+    driver.find_element_by_name("name").send_keys(details['name'])
+    driver.find_element_by_id("email").send_keys(details['email'])
+
+    try:
+        chat_frame = driver.find_element_by_class_name("bhr-chat__messenger")
+        driver.switch_to.frame(chat_frame)
+        driver.find_element_by_class_name("bhr-chat-messenger__minimalise").click()
+        driver.switch_to.default_content()
+    except Exception as error:
+        print(error)
+
+    driver.find_element_by_xpath('//*[@class="fa fa-angle-right fa-lg"]').click()
+    time.sleep(1)
+
+
+    assert "Please enter your business email." in driver.find_element_by_xpath('//*[@id="email-error"]').text
+
+@pytest.mark.check_company
+@pytest.mark.parametrize("ebook_name, name, email, company", [("Online Consumer Trends 2020", "Daniel" , 'daniel.wincencik.benhauer+testrekrutacja@salesmanago.com', '')])
+def test_shoud_pass_when_companyIsInvalid(get_driver, ebook_name, name, email, company):
+
+    url = "https://www.salesmanago.com/"
+
+    details = {
+                "ebook_name" : ebook_name,
+                "name" : name,
+                "email" : email,
+                "company" : company
+            }
+
+    driver = get_driver
+
+    driver.get(url)
+
+    try:
+        driver.wait.until(EC.presence_of_all_elements_located((By.ID, "nav-toggler")))
+    except Exception as error:
+        print("First wait ",error)
+        
+    driver.find_element_by_id("nav-toggler").click()
+    time.sleep(1)
+
+    driver.find_elements_by_xpath('//a[contains(text(),"resources")]')[0].click()
+    time.sleep(1)
+
+    driver.find_elements_by_xpath('//a[contains(text(),"Ebooks")]')[0].click()
+    time.sleep(1)
+
+
+    ebooks_list = driver.find_elements_by_xpath('//*[@class="ebook__img--container"]//a')
+
+    list_of_links = []
+    if ebooks_list:
+        for ebook in ebooks_list:
+            list_of_links.append(ebook.get_attribute('href'))
+
+    time.sleep(1)
+
+    que = Queue()
+
+    thread_list = []
+
+    for url in list_of_links:
+
+        worker = Thread(target=get_ebook_name, args=(que, url, ebook_name))
+        thread_list.append(worker)
+    for thread in thread_list:
+        thread.start()
+    for thread in thread_list:
+        thread.join()
+
+    correct_url = que.get()
+
+    try:
+        driver.get(correct_url)
+    except Exception as error:
+        print(error)
+
+
+
+        time.sleep(3)
+
+    driver.find_element_by_name("name").send_keys(details['name'])
+    driver.find_element_by_id("email").send_keys(details['email'])
+    driver.find_element_by_name("company").send_keys(details['company'])
+
+    try:
+        chat_frame = driver.find_element_by_class_name("bhr-chat__messenger")
+        driver.switch_to.frame(chat_frame)
+        driver.find_element_by_class_name("bhr-chat-messenger__minimalise").click()
+        driver.switch_to.default_content()
+    except Exception as error:
+        print(error)
+
+    driver.find_element_by_xpath('//*[@class="fa fa-angle-right fa-lg"]').click()
+    time.sleep(1)
+
+
+    assert "This field is required." in driver.find_element_by_xpath('//*[@id="company-error"]').text
+
+
+@pytest.mark.check_website
+@pytest.mark.parametrize("ebook_name, name, email, company, website", [("Online Consumer Trends 2020", "Daniel" , 'daniel.wincencik.benhauer+testrekrutacja@salesmanago.com', 'TestCompany', "test")])
+def test_shoud_pass_when_websiteIsInvalid(get_driver, ebook_name, name, email, company, website):
+
+    url = "https://www.salesmanago.com/"
+
+    details = {
+                "ebook_name" : ebook_name,
+                "name" : name,
+                "email" : email,
+                "company" : company,
+                "website" : website
+            }
+
+
+    driver = get_driver
+
+    driver.get(url)
+
+    try:
+        driver.wait.until(EC.presence_of_all_elements_located((By.ID, "nav-toggler")))
+    except Exception as error:
+        print("First wait ",error)
+        
+    driver.find_element_by_id("nav-toggler").click()
+    time.sleep(1)
+
+    driver.find_elements_by_xpath('//a[contains(text(),"resources")]')[0].click()
+    time.sleep(1)
+
+    driver.find_elements_by_xpath('//a[contains(text(),"Ebooks")]')[0].click()
+    time.sleep(1)
+
+
+    ebooks_list = driver.find_elements_by_xpath('//*[@class="ebook__img--container"]//a')
+
+    list_of_links = []
+    if ebooks_list:
+        for ebook in ebooks_list:
+            list_of_links.append(ebook.get_attribute('href'))
+
+    time.sleep(1)
+
+    que = Queue()
+
+    thread_list = []
+
+    for url in list_of_links:
+
+        worker = Thread(target=get_ebook_name, args=(que, url, ebook_name))
+        thread_list.append(worker)
+    for thread in thread_list:
+        thread.start()
+    for thread in thread_list:
+        thread.join()
+
+    correct_url = que.get()
+
+    try:
+        driver.get(correct_url)
+    except Exception as error:
+        print(error)
+
+
+
+        time.sleep(3)
+
+    driver.find_element_by_name("name").send_keys(details['name'])
+    driver.find_element_by_id("email").send_keys(details['email'])
+    driver.find_element_by_name("company").send_keys(details['company'])
+    driver.find_element_by_name("url").send_keys(details['website'])
+
+    try:
+        chat_frame = driver.find_element_by_class_name("bhr-chat__messenger")
+        driver.switch_to.frame(chat_frame)
+        driver.find_element_by_class_name("bhr-chat-messenger__minimalise").click()
+        driver.switch_to.default_content()
+    except Exception as error:
+        print(error)
+
+    driver.find_element_by_xpath('//*[@class="fa fa-angle-right fa-lg"]').click()
+    time.sleep(1)
+
+
+    assert "Please, insert correct URL" in driver.find_element_by_xpath('//*[@id="url-error"]').text
+
+
+
+
+
+@pytest.mark.check_country
+@pytest.mark.parametrize("ebook_name, name, email, company, website, country", [("Online Consumer Trends 2020", "Daniel" , 'daniel.wincencik.benhauer+testrekrutacja@salesmanago.com', 'TestCompany', 'test.pl' ,"Pland")])
+def test_shoud_pass_when_countryIsInvalid(get_driver, ebook_name, name, email, company, website, country):
+
+    url = "https://www.salesmanago.com/"
+
+    details = {
+                "ebook_name" : ebook_name,
+                "name" : name,
+                "email" : email,
+                "company" : company,
+                "website" : website,
+                "country" : country
+            }
+
+
+    driver = get_driver
+
+    driver.get(url)
+
+    try:
+        driver.wait.until(EC.presence_of_all_elements_located((By.ID, "nav-toggler")))
+    except Exception as error:
+        print("First wait ",error)
+        
+    driver.find_element_by_id("nav-toggler").click()
+    time.sleep(1)
+
+    driver.find_elements_by_xpath('//a[contains(text(),"resources")]')[0].click()
+    time.sleep(1)
+
+    driver.find_elements_by_xpath('//a[contains(text(),"Ebooks")]')[0].click()
+    time.sleep(1)
+
+
+    ebooks_list = driver.find_elements_by_xpath('//*[@class="ebook__img--container"]//a')
+
+    list_of_links = []
+    if ebooks_list:
+        for ebook in ebooks_list:
+            list_of_links.append(ebook.get_attribute('href'))
+
+    time.sleep(1)
+
+    que = Queue()
+
+    thread_list = []
+
+    for url in list_of_links:
+
+        worker = Thread(target=get_ebook_name, args=(que, url, ebook_name))
+        thread_list.append(worker)
+    for thread in thread_list:
+        thread.start()
+    for thread in thread_list:
+        thread.join()
+
+    correct_url = que.get()
+
+    try:
+        driver.get(correct_url)
+    except Exception as error:
+        print(error)
+
+
+
+        time.sleep(3)
+
+    driver.find_element_by_name("name").send_keys(details['name'])
+    driver.find_element_by_id("email").send_keys(details['email'])
+    driver.find_element_by_name("company").send_keys(details['company'])
+    driver.find_element_by_name("url").send_keys(details['website'])
+    country_select = Select(driver.find_element_by_id("countryOptions"))
+    try:
+        country_select.select_by_visible_text(details['country'])
+        assert False
+    except Exception as e:
+        assert True
+
+
+    
+@pytest.mark.check_phone_number
+@pytest.mark.parametrize("ebook_name, name, email, company, website, country, phone", [('Online Consumer Trends 2020', 'Daniel' , 'daniel.wincencik.benhauer+testrekrutacja@salesmanago.com', 'TestCompany', 'test.pl', 'Poland', '55666777')])
+def test_shoud_pass_when_phoneIsEmpty(get_driver, ebook_name, name, email, company, website, country, phone):
+
+    url = "https://www.salesmanago.com/"
+
+    details = {
+                "ebook_name" : ebook_name,
+                "name" : name,
+                "email" : email,
+                "company" : company,
+                "website" : website,
+                "country" : country,
+                "phone" : phone
+            }
+
+
+    driver = get_driver
+
+    driver.get(url)
+
+    try:
+        driver.wait.until(EC.presence_of_all_elements_located((By.ID, "nav-toggler")))
+    except Exception as error:
+        print("First wait ",error)
+        
+    driver.find_element_by_id("nav-toggler").click()
+    time.sleep(1)
+
+    driver.find_elements_by_xpath('//a[contains(text(),"resources")]')[0].click()
+    time.sleep(1)
+
+    driver.find_elements_by_xpath('//a[contains(text(),"Ebooks")]')[0].click()
+    time.sleep(1)
+
+
+    ebooks_list = driver.find_elements_by_xpath('//*[@class="ebook__img--container"]//a')
+
+    list_of_links = []
+    if ebooks_list:
+        for ebook in ebooks_list:
+            list_of_links.append(ebook.get_attribute('href'))
+
+    time.sleep(1)
+
+    que = Queue()
+
+    thread_list = []
+
+    for url in list_of_links:
+
+        worker = Thread(target=get_ebook_name, args=(que, url, ebook_name))
+        thread_list.append(worker)
+    for thread in thread_list:
+        thread.start()
+    for thread in thread_list:
+        thread.join()
+
+    correct_url = que.get()
+
+    try:
+        driver.get(correct_url)
+    except Exception as error:
+        print(error)
+
+
+
+        time.sleep(3)
+
+    driver.find_element_by_name("name").send_keys(details['name'])
+    driver.find_element_by_id("email").send_keys(details['email'])
+    driver.find_element_by_name("company").send_keys(details['company'])
+    driver.find_element_by_name("url").send_keys(details['website'])
+    country_select = Select(driver.find_element_by_id("countryOptions"))
+    country_select.select_by_visible_text(details['country'])
+    driver.find_element_by_name("phoneNumber").send_keys(details['phone'])
+
+    try:
+        chat_frame = driver.find_element_by_class_name("bhr-chat__messenger")
+        driver.switch_to.frame(chat_frame)
+        driver.find_element_by_class_name("bhr-chat-messenger__minimalise").click()
+        driver.switch_to.default_content()
+    except Exception as error:
+        print(error)
+
+    driver.find_element_by_xpath('//*[@class="fa fa-angle-right fa-lg"]').click()
+    time.sleep(1)
+
+    assert driver.find_element_by_xpath('//*[@id="phoneNumber"]').isDisplayed()
+
+
+@pytest.mark.check_phone_number
+@pytest.mark.parametrize("ebook_name, name, email, company, website, country, phone", [('Online Consumer Trends 2020', 'Daniel' , 'daniel.wincencik.benhauer+testrekrutacja@salesmanago.com', 'Test', 'test.pl', 'Poland', '55666777')])
+def test_shoud_pass_when_phoneIsInvalid(get_driver, ebook_name, name, email, company, website, country, phone):
+
+    url = "https://www.salesmanago.com/"
+
+    details = {
+                "ebook_name" : ebook_name,
+                "name" : name,
+                "email" : email,
+                "company" : company,
+                "website" : website,
+                "country" : country,
+                "phone" : phone
+            }
+
+
+    driver = get_driver
+
+    driver.get(url)
+
+    try:
+        driver.wait.until(EC.presence_of_all_elements_located((By.ID, "nav-toggler")))
+    except Exception as error:
+        print("First wait ",error)
+        
+    driver.find_element_by_id("nav-toggler").click()
+    time.sleep(1)
+
+    driver.find_elements_by_xpath('//a[contains(text(),"resources")]')[0].click()
+    time.sleep(1)
+
+    driver.find_elements_by_xpath('//a[contains(text(),"Ebooks")]')[0].click()
+    time.sleep(1)
+
+
+    ebooks_list = driver.find_elements_by_xpath('//*[@class="ebook__img--container"]//a')
+
+    list_of_links = []
+    if ebooks_list:
+        for ebook in ebooks_list:
+            list_of_links.append(ebook.get_attribute('href'))
+
+    time.sleep(1)
+
+    que = Queue()
+
+    thread_list = []
+
+    for url in list_of_links:
+
+        worker = Thread(target=get_ebook_name, args=(que, url, ebook_name))
+        thread_list.append(worker)
+    for thread in thread_list:
+        thread.start()
+    for thread in thread_list:
+        thread.join()
+
+    correct_url = que.get()
+
+    try:
+        driver.get(correct_url)
+    except Exception as error:
+        print(error)
+
+
+
+        time.sleep(3)
+
+    driver.find_element_by_name("name").send_keys(details['name'])
+    driver.find_element_by_id("email").send_keys(details['email'])
+    driver.find_element_by_name("company").send_keys(details['company'])
+    driver.find_element_by_name("url").send_keys(details['website'])
+    country_select = Select(driver.find_element_by_id("countryOptions"))
+    country_select.select_by_visible_text(details['country'])
+    driver.find_element_by_name("phoneNumber").send_keys(details['phone'])
+
+    try:
+        chat_frame = driver.find_element_by_class_name("bhr-chat__messenger")
+        driver.switch_to.frame(chat_frame)
+        driver.find_element_by_class_name("bhr-chat-messenger__minimalise").click()
+        driver.switch_to.default_content()
+    except Exception as error:
+        print(error)
+
+    driver.find_element_by_xpath('//*[@class="fa fa-angle-right fa-lg"]').click()
+    time.sleep(1)
+
+    assert driver.find_element_by_xpath('//*[@class="error diallingCode-error"]').isDisplayed()
+
+
+@pytest.mark.get_direct_download_url
+@pytest.mark.parametrize("ebook_name, name, email, company, website, country, phone", [('Online Consumer Trends 2020', 'Daniel' , 'daniel.wincencik.benhauer+testrekrutacja@salesmanago.com', 'Test', 'test.pl', 'Poland', '555666777')])
+def test_shoud_pass_when_moveToThanksPage(get_driver, ebook_name, name, email, company, website, country, phone):
 
     url = "https://www.salesmanago.com/"
 
     details = {
     "ebook_name" : ebook_name,
-    "name" : "Daniel Test",
+    "name" : name,
     "email" : email,
-    "company" : "Recruitment task",
-    "website" : "www.google.pl",
-    "country" : "Poland",
-    "country_code" : "+48",
-    "phone" : "555666777"
+    "company" : company,
+    "website" : website,
+    "country" : country,
+    "phone" : phone
 }
 
 
@@ -244,8 +841,101 @@ def test_shoud_pass_when_move_toSpecificEbookPage(get_driver, ebook_name, email)
         print(error)
 
     driver.find_element_by_xpath('//*[@class="fa fa-angle-right fa-lg"]').click()
-
     time.sleep(1)
 
+    assert driver.find_element_by_xpath('//*[@class="thanks-message"]').isDisplayed()
 
-    assert "The ebook has been sent to your email address." in driver.find_element_by_xpath('//*[@class="thanks-message"]').getText()
+
+
+
+# @pytest.mark.check_website
+# @pytest.mark.parametrize("ebook_name, name, email", [("Online Consumer Trends 2020", "Daniel", 'daniel.wincencik.benhauer+test@gmail.com')])
+# def test_shoud_pass_when_websiteIsInvalid(get_driver, ebook_name, name, email):
+
+#     url = "https://www.salesmanago.com/"
+
+#     details = {
+#                 "ebook_name" : ebook_name,
+#                 "name" : name,
+#                 "email" : email,
+#                 "company" : "Recruitment task",
+#                 "website" : "www.google.pl",
+#                 "country" : "Poland",
+#                 "country_code" : "+48",
+#                 "phone" : "555666777"
+#             }
+
+
+#     driver = get_driver
+
+#     driver.get(url)
+
+#     try:
+#         driver.wait.until(EC.presence_of_all_elements_located((By.ID, "nav-toggler")))
+#     except Exception as error:
+#         print("First wait ",error)
+        
+#     driver.find_element_by_id("nav-toggler").click()
+#     time.sleep(1)
+
+#     driver.find_elements_by_xpath('//a[contains(text(),"resources")]')[0].click()
+#     time.sleep(1)
+
+#     driver.find_elements_by_xpath('//a[contains(text(),"Ebooks")]')[0].click()
+#     time.sleep(1)
+
+
+#     ebooks_list = driver.find_elements_by_xpath('//*[@class="ebook__img--container"]//a')
+
+#     list_of_links = []
+#     if ebooks_list:
+#         for ebook in ebooks_list:
+#             list_of_links.append(ebook.get_attribute('href'))
+
+#     time.sleep(1)
+
+#     que = Queue()
+
+#     thread_list = []
+
+#     for url in list_of_links:
+
+#         worker = Thread(target=get_ebook_name, args=(que, url, ebook_name))
+#         thread_list.append(worker)
+#     for thread in thread_list:
+#         thread.start()
+#     for thread in thread_list:
+#         thread.join()
+
+#     correct_url = que.get()
+
+#     try:
+#         driver.get(correct_url)
+#     except Exception as error:
+#         print(error)
+
+
+
+#         time.sleep(3)
+
+#     driver.find_element_by_name("name").send_keys(details['name'])
+#     driver.find_element_by_id("email").send_keys(details['email'])
+#     driver.find_element_by_name("company").send_keys(details['company'])
+#     driver.find_element_by_name("url").send_keys(details['website'])
+#     country_select = Select(driver.find_element_by_id("countryOptions"))
+#     country_select.select_by_visible_text(details['country'])
+#     driver.find_element_by_name("phoneNumber").send_keys(details['phone'])
+
+#     try:
+#         chat_frame = driver.find_element_by_class_name("bhr-chat__messenger")
+#         driver.switch_to.frame(chat_frame)
+#         driver.find_element_by_class_name("bhr-chat-messenger__minimalise").click()
+#         driver.switch_to.default_content()
+#     except Exception as error:
+#         print(error)
+
+#     driver.find_element_by_xpath('//*[@class="fa fa-angle-right fa-lg"]').click()
+#     time.sleep(1)
+
+
+#     assert "Please enter your business email." in driver.find_element_by_xpath('//*[@id="email-error"]').text
