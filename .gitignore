@@ -1,0 +1,12 @@
+*.log
+*.pyc
+*.xlsx
+*.json
+*.db
+*.jpg
+*.sqlite
+
+./settings.json
+.google-cookie
+__pycache__
+.env
