@@ -1,4 +1,6 @@
+
 from .EbooksPage import EbooksPage
+
 from version2.Config.config import TestData
 from selenium.webdriver.common.by import By
 import sys
@@ -31,7 +33,7 @@ class HomePage(BasePage):
         self.do_click(self.BURGER_MENU)
         self.do_click(self.RESOURCES)
         self.do_click(self.EBOKS)
-        return self.driver
+        return EbooksPage(self.driver)
 
 
 

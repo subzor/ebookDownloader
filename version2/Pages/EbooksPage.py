@@ -1,12 +1,17 @@
+
 import requests
 from bs4 import BeautifulSoup
 from queue import Queue
 from threading import Thread
+
 from ..Config.config import TestData
+
+
 from selenium.webdriver.common.by import By
 import sys
 
 from .BasePage import BasePage
+
 
 
 class EbooksPage(BasePage):
@@ -18,13 +23,14 @@ class EbooksPage(BasePage):
 
     def go_to_url(self, url):
         self.driver.get(url)
-        return self.driver
+        from .LoginPage import LoginPage
+        lol = LoginPage(self.driver)
+        return lol
 
 
     def get_all_links(self):
         list_of_links = []
         ebooks_list = self.get_ebooks_list()
-        print('ssij', ebooks_list)
          
         if ebooks_list:
             for ebook in ebooks_list:

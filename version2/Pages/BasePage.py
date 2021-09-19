@@ -42,6 +42,23 @@ class BasePage:
         WebDriverWait(self.driver, 10).until(EC.title_is(title))
         return self.driver.title
 
-    def select_by(self, by_locator: str, country) -> None:
-        country_select = Select(self.driver.find_element_by_id("countryOptions"))
-        country_select.select_by_visible_text(country)
+    def get_locator_text(self, by_locator: str) ->str:
+        return WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator)).text
+
+    def select_by(self, by_locator: str, text_value: str) -> None:
+        country_select = Select(WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator)))
+        try:
+            country_select.select_by_visible_text(text_value)
+        except Exception as error:
+            print(error)
+            return False
+
+
+    def minimalise_chat(self, by_locator: str, minimise_button_class):
+        try:
+            chat_frame = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator))
+            self.driver.switch_to.frame(chat_frame)
+            self.driver.find_element_by_class_name(minimise_button_class).click()
+            self.driver.switch_to.default_content()
+        except Exception as error:
+            print(error)
