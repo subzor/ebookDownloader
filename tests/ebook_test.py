@@ -18,7 +18,7 @@ from get_url import get_ebook_name
 def go_to_destination(driver):
 
     try:
-        driver.WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.ID, "nav-toggler")))
+        WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.ID, "nav-toggler")))
     except Exception as error:
         print(error)
 
@@ -34,7 +34,7 @@ def go_to_destination(driver):
 def get_ebooks_list(driver):
 
     try:
-        driver.WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.XPATH, '//*[@class="ebook__img--container"]//a')))
+        WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.XPATH, '//*[@class="ebook__img--container"]//a')))
     except Exception as error:
         print(error)
 
@@ -76,7 +76,7 @@ def minimalise_chat_and_click_forward(driver):
 def set_input_boxes(driver, details):
 
     try:
-        driver.WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.XPATH, '//*[@class="fa fa-angle-right fa-lg"]')))
+        WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.XPATH, '//*[@class="fa fa-angle-right fa-lg"]')))
     except Exception as error:
         print(error)
 
@@ -391,7 +391,7 @@ def test_shoud_pass_when_phoneIsEmpty(get_driver, get_ebook_url, ebook_name, nam
 
     time.sleep(1)
 
-    assert driver.find_element_by_xpath('//*[@id="phoneNumber"]').is_displayed()
+    assert driver.find_element_by_id("phoneNumber-error").is_displayed()
 
 
 @pytest.mark.check_phone_number
@@ -510,7 +510,7 @@ def test_shoud_pass_when_ebookExist(get_driver, get_ebook_url, ebook_name, name,
     time.sleep(1)
 
     try:
-        driver.WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.XPATH, '//a[contains(text(),"HERE")]')))
+        WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.XPATH, '//a[contains(text(),"HERE")]')))
     except Exception as error:
         print(error)
     link_to_pdf = driver.find_element_by_xpath('//a[contains(text(),"HERE")]').get_attribute("href")

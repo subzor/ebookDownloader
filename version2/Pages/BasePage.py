@@ -7,54 +7,63 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 
-
-"""This class is parent of all pages"""
-"""Contains all generic methods and utilities for all pages"""
-
 class BasePage:
+    """This class is parent of all pages"""
+    """Contains all generic methods and utilities for all pages"""
 
     def __init__(self, driver) -> None:
+        """Constructor of the page"""
         self.driver = driver
+        self.web_driver = WebDriverWait(self.driver, 10)
 
     def do_click(self, by_locator: str) -> None:
-        WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator)).click()
-        # TODO change instances 
+        """Do click on webpage object"""
+        self.web_driver.until(EC.visibility_of_element_located(by_locator)).click()
 
     def send_text(self, by_locator: str, text: str) -> None:
-        WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator)).send_keys(text)
+        """Send text to webpage object"""
+        self.web_driver.until(EC.visibility_of_element_located(by_locator)).send_keys(text)
 
-    def move_to_url(self, url) -> None:
+    def move_to_url(self, url: str) -> None:
+        """Move to specific url"""
         self.driver.get(url)
 
     def get_element_attribute(self, by_locator: str, attribute: str) -> str:
-        element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator)).get_attribute(attribute)
+        """Get attribute from webpage object"""
+        element = self.web_driver.until(EC.visibility_of_element_located(by_locator)).get_attribute(attribute)
         return element
 
     def get_all_elements(self, by_locator: str) -> list:
-        elements = WebDriverWait(self.driver, 10).until(EC.visibility_of_all_elements_located(by_locator))
+        """Get all elements from webpage object"""
+        elements = self.web_driver.until(EC.visibility_of_all_elements_located(by_locator))
         return elements
     
     def is_visible(self, by_locator: str) -> bool:
-        element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator))
+        """Check is webpage object is visible"""
+        element = self.web_driver.until(EC.visibility_of_element_located(by_locator))
         return bool(element)
 
     def get_title(self, title: str) -> str:
-        WebDriverWait(self.driver, 10).until(EC.title_is(title))
+        """Get webpage title"""
+        self.web_driver.until(EC.title_is(title))
         return self.driver.title
 
     def get_locator_text(self, by_locator: str) ->str:
-        return WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator)).text
+        """Get text from webpage object"""
+        return self.web_driver.until(EC.visibility_of_element_located(by_locator)).text
 
-    def select_by(self, by_locator: str, text_value: str) -> None:
-        country_select = Select(WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator)))
+    def select_by(self, by_locator: str, text_value: str) -> bool:
+        """Select webpage object from dropdown list"""
+        country_select = self.web_driver.until(EC.visibility_of_element_located(by_locator))
         try:
             country_select.select_by_visible_text(text_value)
         except Exception as error:
             print(error)
             return False
+        return True
 
-
-    def minimalise_chat(self, by_locator: str, minimise_button_class):
+    def minimalise_chat(self, by_locator: str, minimise_button_class: str) -> None:
+        """Minimalise live chat"""
         try:
             chat_frame = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(by_locator))
             self.driver.switch_to.frame(chat_frame)

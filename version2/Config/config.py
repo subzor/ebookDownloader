@@ -1,7 +1,12 @@
 
 class TestData:
+    """Class for data storage"""
+
     CHROME_EXECUTABLE_PATH = r"C:\Users\Daniel\Documents\GitHub\ebookDownloader\version2\chrome\chromedriver.exe"
     FIREFOX_EXECUTABLE_PATH = r"C:\Users\Daniel\Documents\GitHub\ebookDownloader\gecko\geckodriver.exe"
+
+    # CHROME_EXECUTABLE_PATH = r"PATH/TO/CHROMEDRIVER"
+    # FIREFOX_EXECUTABLE_PATH = r"PATH/TO/GECKODRIVER"
 
     BASE_URL = "https://www.salesmanago.com/"
 
@@ -20,10 +25,10 @@ class TestData:
     INCORRECT_COMPANY = ""
 
     WEBSITE = "www.ggg.pl"
-    INCORRECT_WEBSITE = "www.ggg.pl"
+    INCORRECT_WEBSITE = "ssss"
 
     COUNTRY = "Poland"
-    INCORRECT_COUNTRY = "Pold"
+    INCORRECT_COUNTRY = "Pld"
 
     PHONE = "555666777"
     INCORRECT_PHONE = "555"

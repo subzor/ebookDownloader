@@ -3,32 +3,35 @@ import requests
 from bs4 import BeautifulSoup
 from queue import Queue
 from threading import Thread
+from selenium.webdriver.common.by import By
 
 from ..Config.config import TestData
-
-
-from selenium.webdriver.common.by import By
-import sys
-
+from .HomePage import HomePage
 from .BasePage import BasePage
 
-
-
 class EbooksPage(BasePage):
+    """By locators - OR"""
+    """Class for page with all ebooks"""
 
     EBOOKS_LINKS = (By.XPATH, '//*[@class="ebook__img--container"]//a')
 
     def __init__(self, driver) -> None:
         super().__init__(driver)
+        """Constructor of the page"""
 
-    def go_to_url(self, url):
+        self.driver.get(TestData.BASE_URL)
+        self.do_click(HomePage.BURGER_MENU)
+        self.do_click(HomePage.RESOURCES)
+        self.do_click(HomePage.EBOKS)
+
+    def go_to_url(self, url: str) -> object:
+        """Used to move to specific ebook and pass driver to another page"""
         self.driver.get(url)
         from .LoginPage import LoginPage
-        lol = LoginPage(self.driver)
-        return lol
+        return LoginPage(self.driver)
 
-
-    def get_all_links(self):
+    def get_all_links(self) ->list:
+        """Retrieve links from Selenium webelements"""
         list_of_links = []
         ebooks_list = self.get_ebooks_list()
          
@@ -38,14 +41,14 @@ class EbooksPage(BasePage):
         
         return list_of_links
 
-    def get_ebooks_list(self):
-        s = self.get_all_elements(self.EBOOKS_LINKS)
-        return s
+    def get_ebooks_list(self) ->list:
+        """Used to retrieve all element located by* from webpage"""
+        return self.get_all_elements(self.EBOOKS_LINKS)
 
 
-    def get_url_from_thread(self, list_of_links, ebook_name):
+    def get_url_from_thread(self, list_of_links: list, ebook_name: str) -> str:
+        """Used to pass ebooks links to check correctness"""
         que = Queue()
-
         thread_list = []
 
         for url in list_of_links:
@@ -58,10 +61,8 @@ class EbooksPage(BasePage):
 
         return que.get()
 
-
-
-    def __get_ebook_name(self, que, url, ebook_name):
-
+    def __get_ebook_name(self, que: object, url: str, ebook_name: str) -> str:
+        """Used to retrieve link to correct ebook"""
         headers = {
         "User-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36 Edg/89.0.774.77",
         "action": "sign-in"
@@ -78,5 +79,3 @@ class EbooksPage(BasePage):
 
         if ebook_name in name:
             que.put(url)
-
-            
