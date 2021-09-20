@@ -11,6 +11,11 @@ class HomePage(BasePage):
     RESOURCES = (By.XPATH, '//a[contains(text(),"resources")]')
     EBOKS = (By.XPATH, '//a[contains(text(),"Ebooks")]')
 
+    CHAT = (By.CLASS_NAME, "bhr-chat__messenger")
+    MINIMALISE_CHAT = "bhr-chat-messenger__minimalise"
+
+    COOCKIES = (By.ID, "close-cookies")
+
     def __init__(self, driver) -> None:
         super().__init__(driver)
         """Constructor of the page"""
@@ -23,10 +28,22 @@ class HomePage(BasePage):
     
     def is_burger_menu_exist(self) -> bool:
         """Check is burger menu exist"""
-        return self.is_visible(self.BURGER_MENU)
+        return self.is_visible(HomePage.BURGER_MENU)
 
     def go_to_ebooks_page(self) -> None:
         """Go to next page method"""
-        self.do_click(self.BURGER_MENU)
-        self.do_click(self.RESOURCES)
-        self.do_click(self.EBOKS)
+
+        if self.is_visible(HomePage.COOCKIES):
+            try:
+                self.do_click(HomePage.COOCKIES)
+            except AttributeError as error:
+                print(error)
+        if self.is_visible(HomePage.CHAT):
+            try:
+                self.minimalise_chat(HomePage.CHAT, HomePage.MINIMALISE_CHAT)
+            except AttributeError as error:
+                print(error)
+        self.do_click(HomePage.BURGER_MENU)
+        self.do_click(HomePage.RESOURCES)
+        self.do_click(HomePage.EBOKS)
+

@@ -40,7 +40,11 @@ class BasePage:
     
     def is_visible(self, by_locator: str) -> bool:
         """Check is webpage object is visible"""
-        element = self.web_driver.until(EC.visibility_of_element_located(by_locator))
+        try:
+            element = self.web_driver.until(EC.visibility_of_element_located(by_locator))
+        except Exception as error:
+            print(error)
+            element = False
         return bool(element)
 
     def get_title(self, title: str) -> str:

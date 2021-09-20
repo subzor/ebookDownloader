@@ -20,6 +20,16 @@ class EbooksPage(BasePage):
         """Constructor of the page"""
 
         self.driver.get(TestData.BASE_URL)
+        if self.is_visible(HomePage.COOCKIES):
+            try:
+                self.do_click(HomePage.COOCKIES)
+            except AttributeError as error:
+                print(error)
+        if self.is_visible(HomePage.CHAT):
+            try:
+                self.minimalise_chat(HomePage.CHAT, HomePage.MINIMALISE_CHAT)
+            except AttributeError as error:
+                print(error)
         self.do_click(HomePage.BURGER_MENU)
         self.do_click(HomePage.RESOURCES)
         self.do_click(HomePage.EBOKS)
