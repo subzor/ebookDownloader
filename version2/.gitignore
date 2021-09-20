@@ -1,0 +1,9 @@
+*.log
+*.pyc
+*.json
+*.db
+*.jpg
+*.pdf
+./settings.json
+__pycache__
+.env

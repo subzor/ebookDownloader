@@ -2,6 +2,9 @@
 class TestData:
     """Class for data storage"""
 
+    CHROME_EXECUTABLE_PATH = r"C:\Users\User.BL-110.000\Documents\GitHub\ebookDownloader\version2\chrome\chromedriver.exe"
+    FIREFOX_EXECUTABLE_PATH = r"C:\Users\User.BL-110.000\Documents\GitHub\ebookDownloader\version2\gecko\geckodriver.exe.exe"
+
     # CHROME_EXECUTABLE_PATH = r"PATH/TO/CHROMEDRIVER"
     # FIREFOX_EXECUTABLE_PATH = r"PATH/TO/GECKODRIVER"
 
